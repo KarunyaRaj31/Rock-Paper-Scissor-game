@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Rock Paper Scissors</title>
+  <style>
+    :root {
+      --card-bg: #16213e;
+      --accent: #fddb3a;
+      --text-light: #ccc;
+      --text-dark: #000;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    p {
+      color: var(--text-light);
+      margin-bottom: 20px;
+      text-align: center;
+      max-width: 700px;
+    }
+
+    .player-input {
+      margin-bottom: 20px;
+    }
+
+    .player-input input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+
+    .player-input button {
+      background-color: var(--accent);
+      color: var(--text-dark);
+      border: none;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .game-container {
+      display: none;
+      justify-content: space-around;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1000px;
+      gap: 20px;
+    }
+
+    .player-side, .computer-side {
+      flex: 1 1 300px;
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    img {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 15px;
+    }
+
+    .btns {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btns button {
+      background-color: var(--accent);
+      color: var(--text-dark);
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btns button:hover {
+      background-color: #ffea80;
+      transform: scale(1.05);
+    }
+
+    .score {
+      background: #0f3460;
+      padding: 15px 30px;
+      margin-top: 30px;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+      max-width: 90%;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .history {
+      margin-top: 30px;
+      width: 90%;
+      max-width: 700px;
+      background-color: #0f3460;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .reset-btn {
+      margin-top: 15px;
+      background-color: #e94560;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      background-color: #ff667f;
+    }
+
+    .shake {
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: rotate(0); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+    }
+
+    @media (max-width: 600px) {
+      .btns button, .player-input input, .player-input button {
+        font-size: 0.9rem;
+      }
+
+      .score, .message {
+        font-size: 0.95rem;
+      }
+
+      img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Rock, Paper, Scissors</h1>
+  <p>Enter your name and play! First to 5 points wins 🎮</p>
+
+  <div class="player-input">
+    <input type="text" id="player-name" placeholder="Enter your name">
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <div class="game-container" id="game">
+    <div class="player-side">
+      <h3 id="player-label">You</h3>
+      <img id="player-img" src="https://img.icons8.com/emoji/96/question-mark-emoji.png" alt="Player Choice">
+      <div class="btns">
+        <button>Rock</button>
+        <button>Paper</button>
+        <button>Scissors</button>
+      </div>
+    </div>
+
+    <div class="computer-side">
+      <h3>Computer</h3>
+      <img id="computer-img" src="https://img.icons8.com/emoji/96/question-mark-emoji.png" alt="Computer Choice">
+    </div>
+  </div>
+
+  <div class="score" id="scoreboard">Player: [0] Computer: [0]</div>
+  <div class="message" id="game-message">Waiting for your move...</div>
+  <button class="reset-btn" onclick="resetGame()">🔁 Reset Game</button>
+  <div class="history" id="history-log">
+    <strong>Game History:</strong><br>
+  </div>
+
+  <!-- Audio -->
+  <audio id="win-sound" src="win.mp3"></audio>
+  <audio id="lose-sound" src="lose.mp3"></audio>
+  <audio id="draw-sound" src="draw.mp3"></audio>
+
+  <script>
+    let playerName = 'Player';
+    const buttons = document.querySelectorAll('.btns button');
+    const playerImg = document.getElementById('player-img');
+    const computerImg = document.getElementById('computer-img');
+    const scoreboard = document.getElementById('scoreboard');
+    const message = document.getElementById('game-message');
+    const historyLog = document.getElementById('history-log');
+    const playerLabel = document.getElementById('player-label');
+
+    const winSound = document.getElementById('win-sound');
+    const loseSound = document.getElementById('lose-sound');
+    const drawSound = document.getElementById('draw-sound');
+
+    const images = {
+      Rock: 'https://img.icons8.com/emoji/96/rock-emoji.png',
+      Paper: 'https://img.icons8.com/emoji/96/raised-hand-emoji.png',
+      Scissors: 'https://img.icons8.com/emoji/96/victory-hand-emoji.png'
+    };
+
+    let playerScore = 0;
+    let computerScore = 0;
+
+    function startGame() {
+      const nameInput = document.getElementById('player-name');
+      playerName = nameInput.value.trim() || 'Player';
+      playerLabel.textContent = playerName;
+      document.querySelector('.player-input').style.display = 'none';
+      document.getElementById('game').style.display = 'flex';
+      resetGame(false);
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener('click', playGame);
+    });
+
+    function playGame(e) {
+      if (playerScore === 5 || computerScore === 5) return;
+
+      const playerChoice = e.target.innerText;
+      const computerChoice = ['Rock', 'Paper', 'Scissors'][Math.floor(Math.random() * 3)];
+
+      playerImg.src = images[playerChoice];
+      computerImg.src = images[computerChoice];
+
+      playerImg.classList.add('shake');
+      computerImg.classList.add('shake');
+      setTimeout(() => {
+        playerImg.classList.remove('shake');
+        computerImg.classList.remove('shake');
+      }, 500);
+
+      const winner = determineWinner(playerChoice, computerChoice);
+      let resultMessage = '';
+
+      if (winner === 'Player') {
+        playerScore++;
+        winSound.play();
+        resultMessage = `${playerName} chose <b>${playerChoice}</b>, Computer chose <b>${computerChoice}</b> — 🎉 ${playerName} wins this round!`;
+      } else if (winner === 'Computer') {
+        computerScore++;
+        loseSound.play();
+        resultMessage = `${playerName} chose <b>${playerChoice}</b>, Computer chose <b>${computerChoice}</b> — 💻 Computer wins this round!`;
+      } else {
+        drawSound.play();
+        resultMessage = `Both chose <b>${playerChoice}</b> — 🤝 It's a draw!`;
+      }
+
+      message.innerHTML = resultMessage;
+      scoreboard.innerHTML = `${playerName}: [${playerScore}] Computer: [${computerScore}]`;
+      historyLog.innerHTML += `• ${resultMessage}<br>`;
+
+      if (playerScore === 5 || computerScore === 5) {
+        setTimeout(() => {
+          alert(`${playerScore === 5 ? "🎉 " + playerName + " wins the game!" : "💻 Computer wins the game!"}`);
+          resetGame();
+        }, 500);
+      }
+    }
+
+    function determineWinner(player, computer) {
+      if (player === computer) return 'Draw';
+      if (
+        (player === 'Rock' && computer === 'Scissors') ||
+        (player === 'Paper' && computer === 'Rock') ||
+        (player === 'Scissors' && computer === 'Paper')
+      ) return 'Player';
+      return 'Computer';
+    }
+
+    function resetGame(clearName = true) {
+      playerScore = 0;
+      computerScore = 0;
+      scoreboard.innerHTML = `${playerName}: [0] Computer: [0]`;
+      message.innerHTML = `Game reset. Let's play again!`;
+      playerImg.src = 'https://img.icons8.com/emoji/96/question-mark-emoji.png';
+      computerImg.src = 'https://img.icons8.com/emoji/96/question-mark-emoji.png';
+      historyLog.innerHTML = `<strong>Game History:</strong><br>`;
+
+      if (clearName) {
+        document.querySelector('.player-input').style.display = 'block';
+        document.getElementById('game').style.display = 'none';
+        document.getElementById('player-name').value = '';
+      }
+    }
+  </script>
+
+</body>
+</html>
